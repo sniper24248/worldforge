@@ -8,6 +8,11 @@ export const TYPES = {
   concept: { label: '概念', color: '#9b8fd0', glyph: '✦', plural: '概念' }
 };
 
+/** 自定义类型可以挑的图标（都用一个字符，渲染成本为零） */
+export const TYPE_GLYPHS = ['☗', '⌖', '⚑', '◆', '✦', '❖', '✧', '⚔', '❂', '◈', '⚗', '☾', '⛨', '✵'];
+export const TYPE_COLORS = ['#c9756b', '#57b7a8', '#d8a657', '#6f95c9', '#9b8fd0', '#7fa88f', '#c98fb0', '#b08a5a'];
+
+
 export const REL_KINDS = {
   ally: { label: '同盟', color: '#57b7a8' },
   enemy: { label: '敌对', color: '#c9756b' },
@@ -51,6 +56,7 @@ const LEGACY_ROUTE = { sea: 'seaLane', road: 'road', dive: 'trail', other: 'othe
 
 const EMPTY_WORLD = {
   meta: { title: '未命名世界', genre: '', logline: '', worldStyle: '', tone: '' },
+  types: [],
   entities: [],
   relations: [],
   events: [],
@@ -68,12 +74,22 @@ const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 export function normalize(raw) {
   const w = { ...structuredClone(EMPTY_WORLD), ...(raw && typeof raw === 'object' ? raw : {}) };
   w.meta = { ...EMPTY_WORLD.meta, ...(w.meta || {}) };
-  for (const key of ['entities', 'relations', 'events', 'gallery']) {
+  for (const key of ['entities', 'relations', 'events', 'gallery', 'types']) {
     if (!Array.isArray(w[key])) w[key] = [];
   }
+  w.types = w.types
+    .filter((t) => t && typeof t === 'object')
+    .map((t) => ({
+      id: String(t.id || uid('type')).replace(/[^\w-]/g, ''),
+      label: String(t.label || '新类型').slice(0, 12),
+      color: t.color || '#7fa88f',
+      glyph: t.glyph || '◈'
+    }))
+    .filter((t) => !TYPES[t.id]);
+  const typeIds = new Set([...Object.keys(TYPES), ...w.types.map((t) => t.id)]);
   w.entities = w.entities.map((e) => ({
     id: e.id || uid('ent'),
-    type: TYPES[e.type] ? e.type : 'character',
+    type: typeIds.has(e.type) ? e.type : 'character',
     name: e.name || '未命名',
     aliases: Array.isArray(e.aliases) ? e.aliases : splitList(e.aliases),
     summary: e.summary || '',
@@ -340,7 +356,19 @@ export const store = {
     return [...own, ...gal];
   },
   typeMeta(t) {
-    return TYPES[t] || { label: t, color: '#8f8577', glyph: '·' };
+    if (TYPES[t]) return TYPES[t];
+    const custom = this.world.types?.find((x) => x.id === t);
+    if (custom) return { label: custom.label, color: custom.color, glyph: custom.glyph };
+    return { label: t || '未分类', color: '#8f8577', glyph: '·' };
+  },
+  /** 内置五类 + 用户自定义，顺序稳定：内置在前 */
+  allTypes() {
+    const builtin = Object.entries(TYPES).map(([id, v]) => ({ id, ...v, builtin: true }));
+    const custom = (this.world.types || []).map((t) => ({ ...t, builtin: false }));
+    return [...builtin, ...custom];
+  },
+  typeCount(id) {
+    return this.world.entities.filter((e) => e.type === id).length;
   }
 };
 

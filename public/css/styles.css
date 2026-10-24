@@ -426,7 +426,25 @@ select { cursor: pointer; }
 .map-zoom button:hover { color: var(--ink); }
 .map-hint { position: absolute; left: 50%; bottom: 112px; transform: translateX(-50%); z-index: 5; font-size: 12px; color: var(--ink-faint); background: var(--glass); border: 1px solid var(--line-soft); padding: 6px 12px; border-radius: 999px; }
 
-/* 底部要素类型栏 */
+/* 设定卡库：按类型展开 */
+.nav-types { margin-top: 2px; }
+.nav-more {
+  width: 100%; text-align: left; background: none; border: 0; cursor: pointer;
+  padding: 6px 10px; color: var(--ink-faint); font-size: 11px; letter-spacing: .06em;
+}
+.nav-more:hover { color: var(--ink-dim); }
+.nav-type-list { display: none; flex-direction: column; gap: 1px; padding-left: 6px; }
+.nav-types.open .nav-type-list { display: flex; }
+.nav-sub {
+  display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 7px;
+  border: 1px solid transparent; background: none; color: var(--ink-dim); cursor: pointer;
+  font-size: 12.5px; text-align: left;
+}
+.nav-sub:hover { background: var(--hover-tint); color: var(--ink); }
+.nav-sub.on { background: var(--amber-soft); border-color: rgba(var(--accent-rgb), .3); color: var(--ink); }
+.nav-sub .count { margin-left: auto; font-size: 10.5px; color: var(--ink-faint); }
+.chip-add { padding: 4px 10px; font-size: 13px; color: var(--ink-faint); border-style: dashed; }
+.chip-add:hover { color: var(--amber); border-color: rgba(var(--accent-rgb), .5); }
 .map-palette {
   position: absolute; left: 50%; bottom: 58px; transform: translateX(-50%); z-index: 6;
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;

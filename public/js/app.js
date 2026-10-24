@@ -27,7 +27,9 @@ let active = null;
 let activeRoute = null;
 
 export function navigate(route, params = {}) {
-  const hash = `#/${route}${params.entity ? `?entity=${encodeURIComponent(params.entity)}` : ''}`;
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) if (v) q.set(k, v);
+  const hash = `#/${route}${q.toString() ? `?${q}` : ''}`;
   if (location.hash === hash) {
     renderRoute();
   } else {
@@ -45,22 +47,55 @@ function currentRoute() {
 function renderRail() {
   const nav = document.getElementById('nav');
   const counts = { cards: store.world.entities.length, timeline: store.world.events.length };
+  const activeType = currentRoute().params.get('type');
+
+  // 设定卡库下面直接挂类型列表，点一下就是带筛选进入
+  const typesGroup = (compact) => `
+    <div class="nav-types ${typesOpen && !compact ? 'open' : ''}">
+      ${compact ? '' : `<button class="nav-more" data-types-toggle>${typesOpen ? '▾' : '▸'} ${esc(t('按类型'))}</button>`}
+      <div class="nav-type-list">
+        ${store
+          .allTypes()
+          .map((tp) => {
+            const n = store.typeCount(tp.id);
+            const on = activeType === tp.id;
+            return `<button class="nav-sub ${on ? 'on' : ''}" data-type-link="${esc(tp.id)}">
+              <span class="type-dot" style="background:${tp.color}"></span>
+              <span>${esc(t(tp.label))}</span>
+              ${n ? `<em class="count">${n}</em>` : ''}
+            </button>`;
+          })
+          .join('')}
+      </div>
+    </div>`;
+
   nav.innerHTML = Object.entries(ROUTES)
     .map(([key, r]) => {
       const c = counts[key];
-      return `<button class="nav-item ${key === activeRoute ? 'active' : ''}" data-route="${key}">
+      const item = `<button class="nav-item ${key === activeRoute && !activeType ? 'active' : ''}" data-route="${key}">
         <svg class="ico"><use href="#${r.icon}" /></svg>
         <span>${esc(t(r.label))}</span>
         ${c ? `<em class="count">${c}</em>` : ''}
       </button>`;
+      return key === 'cards' ? item + typesGroup(false) : item;
     })
     .join('');
   nav.onclick = (e) => {
+    const toggle = e.target.closest('[data-types-toggle]');
+    if (toggle) {
+      typesOpen = !typesOpen;
+      renderRail();
+      return;
+    }
+    const typeLink = e.target.closest('[data-type-link]');
+    if (typeLink) return navigate('cards', { type: typeLink.dataset.typeLink });
     const btn = e.target.closest('[data-route]');
     if (btn) navigate(btn.dataset.route);
   };
   renderSwitcher();
 }
+
+let typesOpen = true;
 
 /* ---------- 世界观目录 ---------- */
 

@@ -1,6 +1,6 @@
 /** 设定卡库：模糊检索、筛选、网格 */
 
-import { store, TYPES } from '../store.js';
+import { store, TYPES, TYPE_COLORS, TYPE_GLYPHS, uid } from '../store.js';
 import { esc, openModal, toast, debounce } from '../ui.js';
 import { openEntityEditor } from './entity-editor.js';
 import { openImportWizard } from './import.js';
@@ -37,6 +37,57 @@ export function mount(root, ctx) {
   page.className = 'page';
   root.appendChild(page);
 
+  // 侧边栏点类型进来时带上筛选
+  const presetType = ctx.params?.get?.('type');
+  if (presetType) {
+    state.types.clear();
+    state.types.add(presetType);
+  }
+
+  function openTypeCreator() {
+    const m = openModal({
+      title: t('新类型'),
+      narrow: true,
+      body: `
+        <div class="field"><label>${esc(t('名称'))}</label>
+          <input type="text" data-label value="" placeholder="${esc(t('比如：生物 / 神话 / 组织'))}" /></div>
+        <div class="field" style="margin-top:14px"><label>${esc(t('图标'))}</label>
+          <div class="chips" id="tc-glyphs">${TYPE_GLYPHS.map((g, i) => `<button class="chip ${i === 0 ? 'on' : ''}" data-glyph="${g}" style="font-size:15px">${g}</button>`).join('')}</div>
+        </div>
+        <div class="field" style="margin-top:14px"><label>${esc(t('颜色'))}</label>
+          <div class="chips" id="tc-colors">${TYPE_COLORS.map((c, i) => `<button class="chip ${i === 5 ? 'on' : ''}" data-color="${c}" style="padding:3px 8px"><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${c}"></i></button>`).join('')}</div>
+        </div>`,
+      footer: `<span class="spacer"></span><button class="btn" data-cancel>${esc(t('取消'))}</button><button class="btn primary" data-ok>${esc(t('创建'))}</button>`
+    });
+    let glyph = TYPE_GLYPHS[0];
+    let color = TYPE_COLORS[5];
+    m.root.querySelector('#tc-glyphs').onclick = (e) => {
+      const b = e.target.closest('[data-glyph]');
+      if (!b) return;
+      glyph = b.dataset.glyph;
+      m.root.querySelectorAll('#tc-glyphs .chip').forEach((x) => x.classList.toggle('on', x === b));
+    };
+    m.root.querySelector('#tc-colors').onclick = (e) => {
+      const b = e.target.closest('[data-color]');
+      if (!b) return;
+      color = b.dataset.color;
+      m.root.querySelectorAll('#tc-colors .chip').forEach((x) => x.classList.toggle('on', x === b));
+    };
+    m.root.querySelector('[data-cancel]').onclick = () => m.close();
+    m.root.querySelector('[data-ok]').onclick = () => {
+      const label = m.root.querySelector('[data-label]').value.trim();
+      if (!label) return toast(t('名称不能为空'), 'err');
+      const id = `t_${uid('x').slice(2, 8)}`;
+      store.commit((w) => w.types.push({ id, label: label.slice(0, 12), color, glyph }));
+      m.close();
+      state.types.clear();
+      state.types.add(id);
+      render();
+      toast(`${t('已创建')}「${label}」`);
+    };
+    setTimeout(() => m.root.querySelector('[data-label]').focus(), 30);
+  }
+
   function render() {
     const tags = allTags();
     page.innerHTML = `
@@ -58,9 +109,16 @@ export function mount(root, ctx) {
         </div>
         <div class="chips" id="type-chips">
           <button class="chip ${state.types.size === 0 ? 'on' : ''}" data-type="">${esc(t('全部'))}</button>
-          ${Object.entries(TYPES)
-            .map(([k, v]) => `<button class="chip ${state.types.has(k) ? 'on' : ''}" data-type="${k}">${esc(t(v.label))}</button>`)
+          ${store
+            .allTypes()
+            .map((tp) => {
+              const n = store.typeCount(tp.id);
+              return `<button class="chip ${state.types.has(tp.id) ? 'on' : ''}" data-type="${esc(tp.id)}">
+                <i class="type-dot" style="background:${tp.color};display:inline-block;margin-right:5px"></i>${esc(t(tp.label))}${n ? `<span class="muted"> ${n}</span>` : ''}
+              </button>`;
+            })
             .join('')}
+          <button class="chip chip-add" data-add-type title="${esc(t('新类型'))}">＋</button>
         </div>
         <span class="spacer"></span>
         <select id="sort" style="max-width:150px">
@@ -102,6 +160,7 @@ export function mount(root, ctx) {
       }, 120)
     );
     page.querySelector('#type-chips').onclick = (e) => {
+      if (e.target.closest('[data-add-type]')) return openTypeCreator();
       const btn = e.target.closest('[data-type]');
       if (!btn) return;
       const type = btn.dataset.type;
@@ -136,7 +195,7 @@ export function mount(root, ctx) {
     } else if (state.sort === 'new') {
       rows = [...rows].sort((a, b) => String(b.entity.createdAt).localeCompare(String(a.entity.createdAt)));
     } else {
-      const order = Object.keys(TYPES);
+      const order = store.allTypes().map((tp) => tp.id);
       rows = [...rows].sort(
         (a, b) =>
           order.indexOf(a.entity.type) - order.indexOf(b.entity.type) || a.entity.name.localeCompare(b.entity.name, 'zh')
@@ -189,18 +248,23 @@ export function mount(root, ctx) {
       title: t('新建条目'),
       narrow: true,
       body: `<div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
-        ${Object.entries(TYPES)
+        ${store
+          .allTypes()
           .map(
-            ([k, v]) => `<button class="card" data-new-type="${k}" style="align-items:flex-start;min-height:96px">
-              <span class="type-dot" style="background:${v.color}"></span>
-              <div class="card-name" style="font-size:15px">${esc(t(v.label))}</div>
-              <div class="card-sum">${esc(t({
-                character: '有欲望、有秘密的人',
-                location: '一座城、房间、野外',
-                faction: '组织、教团、家族',
-                item: '器物、兵器、遗迹',
-                concept: '体系、规则、风俗、技术'
-              }[k] || ''))}</div>
+            (tp) => `<button class="card" data-new-type="${esc(tp.id)}" style="align-items:flex-start;min-height:96px">
+              <span class="type-dot" style="background:${tp.color}"></span>
+              <div class="card-name" style="font-size:15px">${esc(t(tp.label))}</div>
+              <div class="card-sum">${esc(
+                t(
+                  {
+                    character: '有欲望、有秘密的人',
+                    location: '一座城、房间、野外',
+                    faction: '组织、教团、家族',
+                    item: '器物、兵器、遗迹',
+                    concept: '体系、规则、风俗、技术'
+                  }[tp.id] || ''
+                )
+              )}</div>
             </button>`
           )
           .join('')}

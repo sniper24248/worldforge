@@ -6,8 +6,9 @@ import { t } from '../i18n.js';
 import { api } from '../api.js';
 
 const typeOptions = (sel) =>
-  Object.entries(TYPES)
-    .map(([k, v]) => `<option value="${k}" ${k === sel ? 'selected' : ''}>${t(v.label)}</option>`)
+  store
+    .allTypes()
+    .map((tp) => `<option value="${esc(tp.id)}" ${tp.id === sel ? 'selected' : ''}>${esc(t(tp.label))}</option>`)
     .join('');
 
 const kindOptions = (sel) =>

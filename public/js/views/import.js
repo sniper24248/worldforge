@@ -581,7 +581,7 @@ export function openImportWizard({ onDone } = {}) {
           <button class="chip" data-bulk="all">全选</button>
           <button class="chip" data-bulk="none">全不选</button>
           <span class="muted small" style="align-self:center;margin-left:6px">批量设为</span>
-          ${Object.entries(TYPES).map(([k, v]) => `<button class="chip" data-bulk-type="${k}">${v.label}</button>`).join('')}
+          ${store.allTypes().map((tp) => `<button class="chip" data-bulk-type="${esc(tp.id)}">${esc(tp.label)}</button>`).join('')}
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:6px">
@@ -590,7 +590,7 @@ export function openImportWizard({ onDone } = {}) {
             (c, i) => `<div class="rel-item" data-cand="${c.key}" style="align-items:flex-start;gap:10px;padding:10px">
               <input type="checkbox" data-inc ${c.include ? 'checked' : ''} style="margin-top:4px;width:15px;height:15px" />
               <select data-type style="max-width:90px;padding:4px 6px;font-size:12px">
-                ${Object.entries(TYPES).map(([k, v]) => `<option value="${k}" ${c.type === k ? 'selected' : ''}>${v.label}</option>`).join('')}
+                ${store.allTypes().map((tp) => `<option value="${esc(tp.id)}" ${c.type === tp.id ? 'selected' : ''}>${esc(tp.label)}</option>`).join('')}
               </select>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
                 <input type="text" data-name value="${esc(c.name)}" style="padding:4px 8px;font-size:12.5px" />
