@@ -2,6 +2,7 @@
 
 import { store, uid } from '../store.js';
 import { esc, openModal, confirmDialog, toast, promptDialog } from '../ui.js';
+import { t } from '../i18n.js';
 import { openEntityPreview } from './entity-editor.js';
 
 const state = { selected: null, hiddenThreads: new Set() };
