@@ -4,6 +4,7 @@
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const SRC = 'D:/wd/deepseek-harness/default-workspace/worldforge';
 const STAGE_ROOT = path.join(process.env.TEMP, 'wfdist');
@@ -23,7 +24,7 @@ async function exists(p) {
   }
 }
 
-async function main() {
+async function stageRelease() {
   await fs.rm(STAGE_ROOT, { recursive: true, force: true });
   await fs.mkdir(STAGE, { recursive: true });
 
@@ -131,6 +132,12 @@ async function main() {
   for (const [rel, size] of list.sort((a, b) => b[1] - a[1]).slice(0, 8)) {
     console.log(`  ${(size / 1024).toFixed(0).padStart(6)} KB  ${rel}`);
   }
+  return STAGE;
 }
 
-await main();
+export { stageRelease };
+
+// 只有直接运行时才打包；被 build-portable 引入时不自动执行
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await stageRelease();
+}
