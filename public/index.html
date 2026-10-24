@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#100e0c" />
+    <title>WorldForge · 世界观锻造炉</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script>
+      // 在首帧之前把主题和强调色贴上，避免闪一下默认配色
+      (function () {
+        try {
+          var t = localStorage.getItem('wf.theme') || 'amber';
+          document.documentElement.dataset.theme = t;
+          var a = localStorage.getItem('wf.accent');
+          if (a && /^#[0-9a-f]{6}$/i.test(a)) {
+            var r = parseInt(a.slice(1, 3), 16), g = parseInt(a.slice(3, 5), 16), b = parseInt(a.slice(5, 7), 16);
+            document.documentElement.style.setProperty('--amber', a);
+            document.documentElement.style.setProperty('--accent-rgb', r + ', ' + g + ', ' + b);
+            document.documentElement.style.setProperty('--amber-soft', 'rgba(' + r + ',' + g + ',' + b + ',0.14)');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <svg class="sprite" aria-hidden="true">
+      <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2 5-5 2 2-5z" /></symbol>
+      <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="5" width="13" height="15" rx="2" /><path d="M8 3h11a2 2 0 0 1 2 2v13" /></symbol>
+      <symbol id="i-graph" viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.5" /><circle cx="18" cy="6" r="2.5" /><circle cx="12" cy="18" r="2.5" /><path d="m8 8.5 8-1M7.5 9.2l3.4 6.6M16.6 8.3l-3 7" /></symbol>
+      <symbol id="i-timeline" viewBox="0 0 24 24"><path d="M3 12h18" /><circle cx="7" cy="12" r="2" /><circle cx="13" cy="12" r="2" /><circle cx="19" cy="12" r="2" /></symbol>
+      <symbol id="i-map" viewBox="0 0 24 24"><path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2z" /><path d="M9 4v16M15 6v16" /></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8" /></symbol>
+      <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1" /></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" /><path d="m16 16 4 4" /></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" /></symbol>
+      <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 7 4 12l5 5" /><path d="M4 12h9a6 6 0 0 1 0 12h-2" /></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+      <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18h1.5a2 2 0 0 0 0-4h-.7a1.8 1.8 0 0 1 0-3.6H16a5 5 0 0 0 0-10z" /><circle cx="7.5" cy="9" r="1" /><circle cx="10.5" cy="6.5" r="1" /><circle cx="7" cy="13.5" r="1" /></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h8" /></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 12l5 5 5-5M5 20h14" /></symbol>
+    </svg>
+
+    <div class="app" id="app">
+      <aside class="rail">
+        <div class="brand">
+          <span class="brand-mark">◈</span>
+          <span class="brand-text">
+            <strong>WORLDFORGE</strong>
+            <em>世界观锻造炉</em>
+          </span>
+        </div>
+        <div id="world-switch-host" class="world-switch-host"></div>
+        <nav class="nav" id="nav"></nav>
+        <div class="rail-foot">
+          <div class="save-state" id="save-state" title="自动保存状态">载入中…</div>
+          <button class="btn ghost small" id="btn-theme" title="切换配色（点击循环）">
+            <svg class="ico"><use href="#i-palette" /></svg><span id="btn-theme-label" data-i18n="配色">配色</span>
+          </button>
+          <button class="btn ghost small" id="btn-undo" title="撤销 (Ctrl+Z)">
+            <svg class="ico"><use href="#i-undo" /></svg><span data-i18n="撤销">撤销</span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="stage" id="stage" tabindex="-1"></main>
+    </div>
+
+    <div class="dock" id="dock" hidden></div>
+    <div class="modal-host" id="modal-host" hidden></div>
+    <div class="toast-host" id="toast-host"></div>
+
+    <script>
+      // 启动自检：任何未捕获错误都写进 body 属性，方便无头浏览器/排查工具一眼看到
+      (function () {
+        const errors = [];
+        const mark = (msg) => {
+          errors.push(String(msg).slice(0, 300));
+          document.body.dataset.errors = errors.join(' | ');
+          const box = document.getElementById('boot-error');
+          if (box) {
+            box.hidden = false;
+            box.textContent = errors.join('\n');
+          }
+        };
+        window.addEventListener('error', (e) => mark(e.message || e.error || 'unknown error'));
+        window.addEventListener('unhandledrejection', (e) => mark(e.reason?.message || e.reason || 'unhandled rejection'));
+      })();
+    </script>
+    <div id="boot-error" hidden style="position:fixed;left:0;right:0;bottom:0;z-index:200;background:#3a1714;color:#f3c7c1;padding:10px 14px;font:12px/1.6 monospace;white-space:pre-wrap"></div>
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>

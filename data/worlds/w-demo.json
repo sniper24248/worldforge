@@ -1,0 +1,625 @@
+{
+  "meta": {
+    "title": "灰潮纪元",
+    "genre": "海洋奇幻 / 低魔",
+    "logline": "海水每隔十九年涨过一次堤坝，把旧大陆的记忆冲成盐。群岛上的六个城邦靠打捞「沉年」为生——从海底捞起别人的昨天，再卖给需要它的人。",
+    "worldStyle": "wet salt-stained fantasy, overcast northern light, weathered stone and rusted iron, muted teal and bone-white palette, painterly concept art",
+    "tone": "冷、潮湿、克制的哀伤；冒险感来自打捞与交易，而不是战争",
+    "updatedAt": "2026-10-24T18:18:14.607Z"
+  },
+  "entities": [
+    {
+      "id": "loc_hollowbay",
+      "type": "location",
+      "name": "空湾",
+      "aliases": [
+        "旧锚地",
+        "第七码头"
+      ],
+      "summary": "群岛最大的打捞港，退潮时会露出半座沉没的城。",
+      "body": "空湾建在一道被冲垮的旧防波堤内侧。潮水退到最低的四小时里，堤坝外会露出「下城」的屋顶——那是十九年前被淹掉的空湾本身。\n\n打捞公会垄断了所有下潜权，但真正的行家知道，最好的东西不在下城，在更深的「第三层」：更早一次涨潮留下的城市。那里没有法律，只有氧气。\n\n港口常年挂着一种灰白色的灯，用鲸脂和盐晶烧，据说能照出鬼魂。",
+      "tags": [
+        "港口",
+        "核心地点",
+        "打捞"
+      ],
+      "fields": {
+        "气候": "常年阴雨，冬季有盐雾",
+        "人口": "约四万，外来水手占三成",
+        "统治者": "打捞公会理事会"
+      },
+      "images": [
+        "demo-hollowbay-harbour.png"
+      ],
+      "graph": {
+        "x": 0,
+        "y": -202
+      },
+      "createdAt": "2026-10-24T14:56:18.807Z"
+    },
+    {
+      "id": "loc_greywall",
+      "type": "location",
+      "name": "灰堤",
+      "aliases": [],
+      "summary": "群岛唯一没被淹过的城，因为它建在别人的城上面。",
+      "body": "灰堤的每一代人都把新房子盖在上一代的废墟上，如今城区比海平面高出四十米，地基里埋着七层不同年代的砖。\n\n城里人管这叫「叠城」。最下面那一层没有名字，入口被砌死了，只在暴雨夜能听见里面有水流声。\n\n灰堤拒绝打捞公会的船靠岸，理由写在城门上：「我们不买昨天。」",
+      "tags": [
+        "城邦",
+        "对立势力",
+        "叠城"
+      ],
+      "fields": {
+        "气候": "干燥，海风被高墙挡住",
+        "人口": "约七万",
+        "统治者": "城墙议会"
+      },
+      "images": [
+        "demo-greywall-alley.png"
+      ],
+      "graph": {
+        "x": 165,
+        "y": -163
+      },
+      "createdAt": "2026-10-24T14:56:18.807Z"
+    },
+    {
+      "id": "fac_guild",
+      "type": "faction",
+      "name": "打捞公会",
+      "aliases": [
+        "灰钩",
+        "公会"
+      ],
+      "summary": "垄断下潜权与「沉年」交易的寡头组织。",
+      "body": "公会不造船，只发证。一张下潜证能传三代，过期作废，作废的下潜证在黑市上比活人的还贵。\n\n内部按深度分层：浅层的叫「拾贝人」，中层的叫「摸骨」，能下第三层的只有九个「深喉」，名字不对外公布。\n\n公会的真正生意不是打捞，是记忆的定价——一段童年值多少钱，取决于它属于谁。",
+      "tags": [
+        "势力",
+        "垄断",
+        "灰钩"
+      ],
+      "fields": {
+        "总部": "空湾第七码头",
+        "成员": "约两千持证者",
+        "手段": "许可证、债务、沉默"
+      },
+      "images": [],
+      "graph": {
+        "x": 266,
+        "y": -62
+      },
+      "createdAt": "2026-10-24T14:56:18.807Z"
+    },
+    {
+      "id": "fac_wall",
+      "type": "faction",
+      "name": "城墙议会",
+      "aliases": [
+        "灰堤议会"
+      ],
+      "summary": "灰堤的统治机构，主张封存过去、向上建城。",
+      "body": "议会有十二席，席位按「楼层」分配——你住在第几层，就有几票的分量。最顶层的三家贵族因此永远控制着多数。\n\n议会明令禁止一切沉年交易，但每年冬天都有人从灰堤的排水口运出封蜡的箱子。禁令的真实作用是抬高价格。",
+      "tags": [
+        "势力",
+        "保守",
+        "官僚"
+      ],
+      "fields": {
+        "所在地": "灰堤",
+        "席位": "12",
+        "格言": "向上，不向下"
+      },
+      "images": [],
+      "graph": {
+        "x": 266,
+        "y": 62
+      },
+      "createdAt": "2026-10-24T14:56:18.807Z"
+    },
+    {
+      "id": "chr_maren",
+      "type": "character",
+      "name": "玛伦·灰钩",
+      "aliases": [
+        "深喉六号",
+        "老玛伦"
+      ],
+      "summary": "九个「深喉」之一，能独自下到第三层，也是唯一活着回来的。",
+      "body": "玛伦今年五十一岁，肺里积了太多盐，说话像风箱。她是公会最老的深喉，也是唯一一个拒绝说明第三层到底有什么的人。\n\n她左手小指缺了一节，据说是自己咬掉的——为了让某段记忆不再被翻出来。\n\n她养了一只叫「鳍」的盲眼海獭，那东西能闻出沉年里掺的假。",
+      "tags": [
+        "主角候选",
+        "深喉",
+        "打捞公会"
+      ],
+      "fields": {
+        "年龄": "51",
+        "所属": "打捞公会",
+        "特征": "左手缺小指，随身带盐晶灯"
+      },
+      "images": [],
+      "graph": {
+        "x": 165,
+        "y": 163
+      },
+      "createdAt": "2026-10-24T14:56:18.807Z"
+    },
+    {
+      "id": "chr_sera",
+      "type": "character",
+      "name": "瑟拉",
+      "aliases": [
+        "记账人"
+      ],
+      "summary": "灰堤最年轻的议员，靠给死人记账上台。",
+      "body": "瑟拉三十三岁，出身第四层，是议会史上第一个非顶层的议员。她上任后推动的第一件事，是给每一段被交易的记忆登记来源——这让公会恨她，也让底层第一次有了据可查的价格。\n\n她随身带一本用鱼皮做封面的册子，据说里面记着所有她买过的昨天。",
+      "tags": [
+        "议员",
+        "改革派",
+        "城墙议会"
+      ],
+      "fields": {
+        "年龄": "33",
+        "所属": "城墙议会",
+        "特征": "鱼皮账册，右手常戴薄手套"
+      },
+      "images": [],
+      "graph": {
+        "x": 0,
+        "y": 202
+      },
+      "createdAt": "2026-10-24T14:56:18.807Z"
+    },
+    {
+      "id": "chr_toll",
+      "type": "character",
+      "name": "托尔·无证",
+      "aliases": [
+        "水耗子"
+      ],
+      "summary": "没有下潜证的野潜者，专捞别人不敢碰的东西。",
+      "body": "托尔十九岁，在空湾的棚户区长大的孤儿。他没有证，所以他下潜的每一分钟都是违法的——也因此，他是唯一敢碰「湿记忆」的人。\n\n湿记忆是在水里泡过太久的沉年，捞上来会渗水，看的人会做不属于自己的梦。\n\n他相信海底有他母亲的一段记忆，正在找。",
+      "tags": [
+        "野潜者",
+        "孤儿",
+        "湿记忆"
+      ],
+      "fields": {
+        "年龄": "19",
+        "所属": "无",
+        "特征": "自制芦苇呼吸管，左耳挂三枚螺壳"
+      },
+      "images": [],
+      "graph": {
+        "x": -165,
+        "y": 163
+      },
+      "createdAt": "2026-10-24T14:56:18.807Z"
+    },
+    {
+      "id": "item_saltlamp",
+      "type": "item",
+      "name": "盐晶灯",
+      "aliases": [
+        "灰灯"
+      ],
+      "summary": "用鲸脂与盐晶烧的灯，据说能照出鬼魂。",
+      "body": "盐晶灯是空湾的日常器物，也是禁忌的工具。普通火焰在水下会灭，盐晶灯不会——它烧的是灯芯里封的一段沉年。\n\n灯亮时，周围三米内的鬼魂会显出轮廓。代价是：灯灭之后，持灯者会忘掉灯亮时看见的一件事。\n\n没人知道自己忘了什么，这正是它被广泛使用的原因。",
+      "tags": [
+        "器物",
+        "禁忌",
+        "照明"
+      ],
+      "fields": {
+        "材料": "鲸脂、盐晶、封蜡的沉年",
+        "副作用": "遗忘灯亮时的一件见闻"
+      },
+      "images": [],
+      "graph": {
+        "x": -266,
+        "y": 62
+      },
+      "createdAt": "2026-10-24T14:56:18.807Z"
+    },
+    {
+      "id": "item_wetmemory",
+      "type": "item",
+      "name": "湿记忆",
+      "aliases": [
+        "渗水沉年"
+      ],
+      "summary": "在水里泡得太久的沉年，会渗水，也会传染梦境。",
+      "body": "标准的沉年用蜡封在铜匣里，干燥、可读、可定价。湿记忆则是没被封好的那些——海水进了匣子，记忆的边界就糊了。\n\n读湿记忆的人会做不属于自己的梦，梦连续七夜，第八夜醒来时会忘掉自己的一个习惯。\n\n公会把它列为违禁品，黑市上却一直是硬通货。",
+      "tags": [
+        "违禁品",
+        "记忆",
+        "黑市"
+      ],
+      "fields": {
+        "形态": "渗水的铜匣 / 泡胀的蜡块",
+        "风险": "连续七夜的异物梦境"
+      },
+      "images": [],
+      "graph": {
+        "x": -266,
+        "y": -62
+      },
+      "createdAt": "2026-10-24T14:56:18.807Z"
+    },
+    {
+      "id": "loc_thirdlayer",
+      "type": "location",
+      "name": "第三层",
+      "aliases": [
+        "更深的城"
+      ],
+      "summary": "比下城更早一次涨潮留下的城市，没人说清里面有什么。",
+      "body": "第三层的入口在空湾外海约六里处，一个被珊瑚盖住的楼梯井。九个深喉有八个死在这里，第九个不肯说话。\n\n所有从第三层带回的东西都被公会在上岸前收走，连记录都不留。\n\n有一种说法：第三层不是城市，是一个人——整座城是某段记忆的具象，所以走进去的人会开始「想起」自己没经历过的一生。",
+      "tags": [
+        "禁地",
+        "深海",
+        "核心谜团"
+      ],
+      "fields": {
+        "深度": "约 140 米",
+        "进入条件": "深喉证 + 公会特许"
+      },
+      "images": [],
+      "graph": {
+        "x": -165,
+        "y": -163
+      },
+      "createdAt": "2026-10-24T14:56:18.807Z"
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel_1",
+      "from": "chr_maren",
+      "to": "fac_guild",
+      "kind": "vassal",
+      "label": "最老的深喉，却不听调遣"
+    },
+    {
+      "id": "rel_2",
+      "from": "chr_maren",
+      "to": "loc_thirdlayer",
+      "kind": "secret",
+      "label": "唯一活着回来的人"
+    },
+    {
+      "id": "rel_3",
+      "from": "chr_sera",
+      "to": "fac_wall",
+      "kind": "vassal",
+      "label": "第四层出身的议员"
+    },
+    {
+      "id": "rel_4",
+      "from": "chr_sera",
+      "to": "fac_guild",
+      "kind": "enemy",
+      "label": "推动记忆来源登记，断了公会的暗账"
+    },
+    {
+      "id": "rel_5",
+      "from": "chr_toll",
+      "to": "fac_guild",
+      "kind": "enemy",
+      "label": "无证野潜，被公会悬赏"
+    },
+    {
+      "id": "rel_6",
+      "from": "chr_toll",
+      "to": "item_wetmemory",
+      "kind": "uses",
+      "label": "唯一敢经手湿记忆的人"
+    },
+    {
+      "id": "rel_7",
+      "from": "fac_guild",
+      "to": "loc_hollowbay",
+      "kind": "controls",
+      "label": "垄断第七码头"
+    },
+    {
+      "id": "rel_8",
+      "from": "fac_wall",
+      "to": "fac_guild",
+      "kind": "rival",
+      "label": "表面禁令，暗中抽税"
+    },
+    {
+      "id": "rel_9",
+      "from": "item_saltlamp",
+      "to": "loc_hollowbay",
+      "kind": "made_in",
+      "label": "空湾日常器物"
+    },
+    {
+      "id": "rel_10",
+      "from": "chr_maren",
+      "to": "chr_toll",
+      "kind": "ally",
+      "label": "暗中给他通气"
+    }
+  ],
+  "events": [
+    {
+      "id": "ev_1",
+      "title": "第一次涨潮",
+      "year": -38,
+      "thread": "纪元",
+      "summary": "旧大陆被淹没，群岛成为孤岛。",
+      "entityIds": []
+    },
+    {
+      "id": "ev_2",
+      "title": "第二次涨潮",
+      "year": -19,
+      "thread": "纪元",
+      "summary": "空湾下城沉没，打捞业兴起。",
+      "entityIds": [
+        "loc_hollowbay"
+      ]
+    },
+    {
+      "id": "ev_3",
+      "title": "公会立证",
+      "year": -17,
+      "thread": "公会",
+      "summary": "下潜权被写进许可证，浅层拾贝人从此成为契约工。",
+      "entityIds": [
+        "fac_guild"
+      ]
+    },
+    {
+      "id": "ev_4",
+      "title": "灰堤封闭下城入口",
+      "year": -6,
+      "thread": "灰堤",
+      "summary": "议会以「结构安全」为由砌死第七层通道。",
+      "entityIds": [
+        "loc_greywall",
+        "fac_wall"
+      ]
+    },
+    {
+      "id": "ev_5",
+      "title": "第三次涨潮",
+      "year": 0,
+      "thread": "纪元",
+      "summary": "预言中的涨潮年。海水比上次高了两尺，但堤坝没垮。",
+      "entityIds": [
+        "loc_hollowbay"
+      ]
+    },
+    {
+      "id": "ev_6",
+      "title": "瑟拉当选",
+      "year": 2,
+      "thread": "灰堤",
+      "summary": "第四层出身的记账人进入议会，打破顶层垄断。",
+      "entityIds": [
+        "chr_sera",
+        "fac_wall"
+      ]
+    },
+    {
+      "id": "ev_7",
+      "title": "托尔捞起第一块湿记忆",
+      "year": 3,
+      "thread": "野潜",
+      "summary": "黑市价格翻了三倍，公会开始清剿无证者。",
+      "entityIds": [
+        "chr_toll",
+        "item_wetmemory"
+      ]
+    },
+    {
+      "id": "ev_8",
+      "title": "玛伦从第三层归来",
+      "year": 4,
+      "thread": "深海",
+      "summary": "八名深喉同行，只有她一人上岸，且拒绝作证。",
+      "entityIds": [
+        "chr_maren",
+        "loc_thirdlayer"
+      ]
+    }
+  ],
+  "gallery": [
+    {
+      "id": "img_test1",
+      "file": "demo-hollowbay-harbour.png",
+      "prompt": "a weathered harbor city built on a collapsed breakwater, half-sunken ruins emerging at low tide, overcast northern light, wet basalt stone, rusted iron cranes, small fishing boats, painterly concept art, muted teal and bone-white palette, volumetric fog, wide establishing shot",
+      "provider": "comfyui",
+      "createdAt": "2026-10-24T14:57:47.8546020Z",
+      "entityId": "loc_hollowbay"
+    },
+    {
+      "id": "img_test2",
+      "file": "demo-greywall-alley.png",
+      "prompt": "a narrow salt-stained alley inside a city built on older cities, worn stone stairs, laundry lines above, mossy brick, a single grey lantern glowing, overcast damp light, painterly concept art, eye-level view",
+      "provider": "comfyui",
+      "createdAt": "2026-10-24T14:57:47.8546020Z",
+      "entityId": "loc_greywall"
+    },
+    {
+      "id": "img_test3",
+      "file": "demo-map-texture.png",
+      "prompt": "an ancient hand-drawn fantasy map of an archipelago, aged parchment texture, sepia ink coastlines, hatched mountains, compass rose, top-down cartography",
+      "provider": "comfyui",
+      "createdAt": "2026-10-24T14:57:47.8546020Z",
+      "entityId": null
+    }
+  ],
+  "map": {
+    "canvas": {
+      "w": 1600,
+      "h": 1000
+    },
+    "bg": null,
+    "bgOpacity": 0.45,
+    "regions": [
+      {
+        "id": "rg_1",
+        "name": "内湾",
+        "color": "#2f6b6b",
+        "points": [
+          [
+            420,
+            380
+          ],
+          [
+            760,
+            300
+          ],
+          [
+            980,
+            420
+          ],
+          [
+            940,
+            640
+          ],
+          [
+            660,
+            700
+          ],
+          [
+            430,
+            600
+          ]
+        ]
+      },
+      {
+        "id": "rg_2",
+        "name": "灰堤高地",
+        "color": "#6b5b2f",
+        "points": [
+          [
+            1010,
+            220
+          ],
+          [
+            1280,
+            260
+          ],
+          [
+            1330,
+            470
+          ],
+          [
+            1150,
+            560
+          ],
+          [
+            1010,
+            440
+          ]
+        ]
+      },
+      {
+        "id": "rg_3",
+        "name": "外海·第三层",
+        "color": "#1f3f5c",
+        "points": [
+          [
+            250,
+            700
+          ],
+          [
+            560,
+            760
+          ],
+          [
+            700,
+            880
+          ],
+          [
+            420,
+            940
+          ],
+          [
+            220,
+            860
+          ]
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "id": "pin_1",
+        "label": "空湾",
+        "entityId": "loc_hollowbay",
+        "x": 690,
+        "y": 520,
+        "size": "city"
+      },
+      {
+        "id": "pin_2",
+        "label": "灰堤",
+        "entityId": "loc_greywall",
+        "x": 1170,
+        "y": 400,
+        "size": "city"
+      },
+      {
+        "id": "pin_3",
+        "label": "第三层",
+        "entityId": "loc_thirdlayer",
+        "x": 430,
+        "y": 840,
+        "size": "site"
+      }
+    ],
+    "routes": [
+      {
+        "id": "rt_1",
+        "label": "灰堤航道",
+        "kind": "sea",
+        "points": [
+          [
+            700,
+            540
+          ],
+          [
+            880,
+            470
+          ],
+          [
+            1050,
+            430
+          ],
+          [
+            1150,
+            410
+          ]
+        ]
+      },
+      {
+        "id": "rt_2",
+        "label": "深潜线",
+        "kind": "dive",
+        "points": [
+          [
+            700,
+            560
+          ],
+          [
+            640,
+            660
+          ],
+          [
+            540,
+            760
+          ],
+          [
+            450,
+            820
+          ]
+        ]
+      }
+    ]
+  }
+}
