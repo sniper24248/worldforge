@@ -1,13 +1,16 @@
 /** 地图：程序绘制区域 / 地点 / 路线，生图只当底图皮肤 */
 
-import { store, ROUTE_KINDS, uid } from '../store.js';
+import { store, ROUTE_KINDS, REGION_KINDS, PATH_KINDS, uid } from '../store.js';
 import { esc, toast, openModal, confirmDialog, promptDialog, download } from '../ui.js';
+import { t } from '../i18n.js';
 import { openEntityEditor, openEntityPreview } from './entity-editor.js';
 
 const state = {
   zoom: 1,
   pan: { x: 0, y: 0 },
   tool: 'select',
+  regionSubtype: 'land',
+  pathSubtype: 'road',
   selected: null, // { kind: 'region'|'pin'|'route', id }
   pending: [],
   cursor: null
@@ -33,6 +36,16 @@ export function mount(root, ctx) {
   const hint = document.createElement('div');
   hint.className = 'map-hint';
   root.appendChild(hint);
+
+  // 底部要素类型选择栏
+  const palette = document.createElement('div');
+  palette.className = 'map-palette';
+  root.appendChild(palette);
+
+  // 左下角自动图例
+  const legend = document.createElement('div');
+  legend.className = 'map-legend';
+  root.appendChild(legend);
 
   const dock = document.getElementById('dock');
 
@@ -78,25 +91,103 @@ export function mount(root, ctx) {
     const map = store.world.map;
     const selected = state.selected;
     bar.innerHTML = `
-      <button class="map-tool ${state.tool === 'select' ? 'on' : ''}" data-tool="select">选择</button>
-      <button class="map-tool ${state.tool === 'region' ? 'on' : ''}" data-tool="region">区域</button>
-      <button class="map-tool ${state.tool === 'pin' ? 'on' : ''}" data-tool="pin">地点</button>
-      <button class="map-tool ${state.tool === 'route' ? 'on' : ''}" data-tool="route">道路</button>
-      <button class="map-tool ${state.tool === 'erase' ? 'on' : ''}" data-tool="erase">擦除</button>
+      <button class="map-tool ${state.tool === 'select' ? 'on' : ''}" data-tool="select">${esc(t('选择'))}</button>
+      <button class="map-tool ${state.tool === 'region' ? 'on' : ''}" data-tool="region">${esc(t('区域'))}</button>
+      <button class="map-tool ${state.tool === 'pin' ? 'on' : ''}" data-tool="pin">${esc(t('地点'))}</button>
+      <button class="map-tool ${state.tool === 'route' ? 'on' : ''}" data-tool="route">${esc(t('路径'))}</button>
+      <button class="map-tool ${state.tool === 'erase' ? 'on' : ''}" data-tool="erase">${esc(t('擦除'))}</button>
       <span style="width:1px;background:var(--line);margin:0 4px"></span>
-      <button class="map-tool" data-act="bg">底图</button>
-      <button class="map-tool" data-act="export">导出 SVG</button>
+      <button class="map-tool" data-act="bg">${esc(t('底图'))}</button>
+      <button class="map-tool" data-act="export">${esc(t('导出 SVG'))}</button>
     `;
     hint.textContent =
       state.tool === 'region'
-        ? '点击落点，双击或回车闭合；Esc 取消'
+        ? `${t(REGION_KINDS[state.regionSubtype].label)}：${t('点击落点，双击或回车闭合；Esc 取消')}`
         : state.tool === 'route'
-          ? '点击连线，双击或回车结束；Esc 取消'
+          ? `${t(PATH_KINDS[state.pathSubtype].label)}：${t('点击连线，双击或回车结束；Esc 取消')}`
           : state.tool === 'pin'
-            ? '点击放一个地点'
+            ? t('点击放一个地点')
             : state.tool === 'erase'
-              ? '点中要删除的区域 / 地点 / 道路'
-              : '拖动平移 · 滚轮缩放 · 双击编辑';
+              ? t('点中要删除的区域 / 地点 / 道路')
+              : t('拖动平移 · 滚轮缩放 · 双击编辑');
+
+    // 底部类型选择栏：选了类型，画法自动跟着切
+    palette.innerHTML = `
+      <div class="mp-group">
+        <span class="mp-title">${esc(t('区域'))}</span>
+        ${Object.entries(REGION_KINDS)
+          .map(
+            ([k, v]) =>
+              `<button class="mp-chip ${state.tool === 'region' && state.regionSubtype === k ? 'on' : ''}" data-region-kind="${k}">
+                 <i class="mp-swatch" style="background:${v.color}"></i>${esc(t(v.label))}
+               </button>`
+          )
+          .join('')}
+      </div>
+      <span class="mp-sep"></span>
+      <div class="mp-group">
+        <span class="mp-title">${esc(t('路径'))}</span>
+        ${Object.entries(PATH_KINDS)
+          .filter(([k]) => k !== 'other')
+          .map(
+            ([k, v]) =>
+              `<button class="mp-chip ${state.tool === 'route' && state.pathSubtype === k ? 'on' : ''}" data-path-kind="${k}">
+                 <i class="mp-line" style="border-top-color:${v.color};border-top-style:${v.dash ? 'dashed' : 'solid'}"></i>${esc(t(v.label))}
+               </button>`
+          )
+          .join('')}
+      </div>
+      <span class="mp-sep"></span>
+      <button class="mp-chip ${state.tool === 'pin' ? 'on' : ''}" data-pin-tool>${esc(t('地点'))}</button>
+    `;
+    palette.querySelectorAll('[data-region-kind]').forEach((btn) => {
+      btn.onclick = () => {
+        state.regionSubtype = btn.dataset.regionKind;
+        state.tool = 'region';
+        state.pending = [];
+        hideDock();
+        render();
+      };
+    });
+    palette.querySelectorAll('[data-path-kind]').forEach((btn) => {
+      btn.onclick = () => {
+        state.pathSubtype = btn.dataset.pathKind;
+        state.tool = 'route';
+        state.pending = [];
+        hideDock();
+        render();
+      };
+    });
+    palette.querySelector('[data-pin-tool]').onclick = () => {
+      state.tool = 'pin';
+      state.pending = [];
+      render();
+    };
+
+    // 自动图例：只列实际用到的类型
+    const used = new Map();
+    for (const r of map.regions) {
+      const key = `region:${r.subtype || 'land'}`;
+      used.set(key, (used.get(key) || 0) + 1);
+    }
+    for (const r of map.routes) {
+      const key = `path:${r.subtype || 'road'}`;
+      used.set(key, (used.get(key) || 0) + 1);
+    }
+    legend.innerHTML = used.size
+      ? `<div class="ml-title">${esc(t('图例'))}</div>${[...used.entries()]
+          .map(([key, n]) => {
+            const [kind, sub] = key.split(':');
+            if (kind === 'region') {
+              const rk = REGION_KINDS[sub] || REGION_KINDS.land;
+              return `<div class="ml-row"><i class="mp-swatch" style="background:${rk.color}"></i>${esc(t(rk.label))}<span>${n}</span></div>`;
+            }
+            const pk = PATH_KINDS[sub] || PATH_KINDS.other;
+            return `<div class="ml-row"><i class="mp-line" style="border-top-color:${pk.color};border-top-style:${pk.dash ? 'dashed' : 'solid'}"></i>${esc(t(pk.label))}<span>${n}</span></div>`;
+          })
+          .join('')}`
+      : '';
+    legend.hidden = !used.size;
 
     const pins = map.pins
       .map((p) => {
@@ -115,13 +206,14 @@ export function mount(root, ctx) {
 
     const routes = map.routes
       .map((r) => {
-        const kind = ROUTE_KINDS[r.kind] || ROUTE_KINDS.other;
+        const pk = PATH_KINDS[r.subtype] || PATH_KINDS.other;
         const d = r.points.map((p, i) => `${i ? 'L' : 'M'}${p[0]},${p[1]}`).join(' ');
         const mid = r.points[Math.floor(r.points.length / 2)] || [0, 0];
         const active = selected?.kind === 'route' && selected.id === r.id;
         return `<g class="route-group" data-route="${r.id}" style="cursor:pointer">
           <path d="${d}" stroke="transparent" stroke-width="16" fill="none"></path>
-          <path class="route" d="${d}" stroke="${kind.color}" stroke-width="${active ? 3.4 : 2.2}" opacity="${active ? 1 : 0.8}"></path>
+          <path class="route" d="${d}" stroke="${r.color || pk.color}" stroke-width="${active ? pk.width + 1.2 : pk.width}"
+                stroke-dasharray="${pk.dash}" opacity="${active ? 1 : 0.85}"></path>
           ${r.label ? `<text class="route-label" x="${mid[0]}" y="${mid[1] - 8}">${esc(r.label)}</text>` : ''}
         </g>`;
       })
@@ -129,11 +221,13 @@ export function mount(root, ctx) {
 
     const regions = map.regions
       .map((r) => {
+        const rk = REGION_KINDS[r.subtype] || REGION_KINDS.land;
+        const fill = r.color || rk.color;
         const d = r.points.map((p, i) => `${i ? 'L' : 'M'}${p[0]},${p[1]}`).join(' ') + ' Z';
         const c = r.labelAt ? { x: r.labelAt[0], y: r.labelAt[1] } : centroid(r.points);
         const active = selected?.kind === 'region' && selected.id === r.id;
         return `<g class="region-group" data-region="${r.id}" style="cursor:pointer">
-          <path class="region" d="${d}" fill="${r.color}" stroke="${r.color}" stroke-width="${active ? 2.6 : 1.6}"></path>
+          <path class="region" d="${d}" fill="${fill}" fill-opacity="${rk.fillOpacity}" stroke="${fill}" stroke-width="${active ? 2.6 : 1.6}"></path>
           <text class="region-label" x="${c.x}" y="${c.y}">${esc(r.name)}</text>
         </g>`;
       })
@@ -447,27 +541,39 @@ export function mount(root, ctx) {
     `;
   }
 
+  /** 同类型已有几个，用来生成「公路 2」这种默认名 */
+  function nextName(kind, preset) {
+    const list = kind === 'region' ? store.world.map.regions : store.world.map.routes;
+    const sub = kind === 'region' ? state.regionSubtype : state.pathSubtype;
+    const n = list.filter((x) => (x.subtype || (kind === 'region' ? 'land' : 'road')) === sub).length + 1;
+    return `${preset.name} ${n}`;
+  }
+
   function finishRegion() {
-    if (state.pending.length < 3) return toast('至少三个点才能围成区域', 'err');
+    if (state.pending.length < 3) return toast(t('至少三个点才能围成区域'), 'err');
     const id = uid('rg');
     const points = [...state.pending];
+    const preset = REGION_KINDS[state.regionSubtype] || REGION_KINDS.land;
+    const name = nextName('region', preset);
+    const subtype = REGION_KINDS[state.regionSubtype] ? state.regionSubtype : 'land';
     state.pending = [];
-    store.commit((w) =>
-      w.map.regions.push({ id, name: '新区域', color: '#2f6b6b', points })
-    );
+    store.commit((w) => w.map.regions.push({ id, name, subtype, color: preset.color, points }));
     state.selected = { kind: 'region', id };
     state.tool = 'select';
     render();
     openDock();
-    toast('区域已创建，右下角可以改名和配色');
+    toast(t('区域已创建，右下角可以改名和配色'));
   }
 
   function finishRoute() {
-    if (state.pending.length < 2) return toast('至少两个点才能成线', 'err');
+    if (state.pending.length < 2) return toast(t('至少两个点才能成线'), 'err');
     const id = uid('rt');
     const points = [...state.pending];
+    const preset = PATH_KINDS[state.pathSubtype] || PATH_KINDS.road;
+    const subtype = PATH_KINDS[state.pathSubtype] ? state.pathSubtype : 'road';
+    const name = nextName('route', preset);
     state.pending = [];
-    store.commit((w) => w.map.routes.push({ id, label: '', kind: 'sea', points }));
+    store.commit((w) => w.map.routes.push({ id, label: name, kind: 'other', subtype, points }));
     state.selected = { kind: 'route', id };
     state.tool = 'select';
     render();
@@ -530,16 +636,30 @@ export function mount(root, ctx) {
       if (!r) return;
       dock.hidden = false;
       dock.innerHTML = `
-        <h3>区域</h3>
-        <div class="field"><label>名称</label><input type="text" data-name value="${esc(r.name)}" /></div>
+        <h3>${esc(t(REGION_KINDS[r.subtype]?.label || '区域'))}</h3>
+        <div class="field"><label>${esc(t('类型'))}</label>
+          <select data-subtype>${Object.entries(REGION_KINDS)
+            .map(([k, v]) => `<option value="${k}" ${k === (r.subtype || 'land') ? 'selected' : ''}>${esc(t(v.label))}</option>`)
+            .join('')}</select></div>
+        <div class="field" style="margin-top:12px"><label>${esc(t('名称'))}</label><input type="text" data-name value="${esc(r.name)}" /></div>
         <div class="row" style="margin-top:12px">
-          <div class="field"><label>颜色</label><input type="color" data-color value="${esc(r.color)}" style="height:36px;padding:2px" /></div>
-          <div class="field"><label>顶点</label><div class="mono" style="padding:8px 0">${r.points.length} 个</div></div>
+          <div class="field"><label>${esc(t('颜色'))}</label><input type="color" data-color value="${esc(r.color)}" style="height:36px;padding:2px" /></div>
+          <div class="field"><label>${esc(t('顶点'))}</label><div class="mono" style="padding:8px 0">${r.points.length} ${esc(t('个'))}</div></div>
         </div>
         <div class="hr"></div>
-        <button class="btn danger small" data-del>删除区域</button>
-        <button class="btn ghost small" data-close style="margin-left:6px">收起</button>
+        <button class="btn danger small" data-del>${esc(t('删除区域'))}</button>
+        <button class="btn ghost small" data-close style="margin-left:6px">${esc(t('收起'))}</button>
       `;
+      dock.querySelector('[data-subtype]').onchange = (e) => {
+        const preset = REGION_KINDS[e.target.value] || REGION_KINDS.land;
+        store.commit((w) => {
+          const t2 = w.map.regions.find((x) => x.id === r.id);
+          if (!t2) return;
+          t2.subtype = e.target.value;
+          t2.color = preset.color;
+        });
+        openDock();
+      };
       dock.querySelector('[data-name]').onchange = (e) => {
         store.commit((w) => {
           const t = w.map.regions.find((x) => x.id === r.id);
@@ -614,15 +734,15 @@ export function mount(root, ctx) {
       if (!r) return;
       dock.hidden = false;
       dock.innerHTML = `
-        <h3>道路 / 航线</h3>
+        <h3>${esc(t(PATH_KINDS[r.subtype]?.label || '路径'))}</h3>
         <div class="field"><label>名称</label><input type="text" data-name value="${esc(r.label)}" /></div>
-        <div class="field" style="margin-top:12px"><label>类型</label>
-          <select data-kind>${Object.entries(ROUTE_KINDS)
-            .map(([k, v]) => `<option value="${k}" ${k === r.kind ? 'selected' : ''}>${v.label}</option>`)
+        <div class="field" style="margin-top:12px"><label>${esc(t('类型'))}</label>
+          <select data-kind>${Object.entries(PATH_KINDS)
+            .map(([k, v]) => `<option value="${k}" ${k === (r.subtype || 'road') ? 'selected' : ''}>${esc(t(v.label))}</option>`)
             .join('')}</select></div>
-        <div class="mono muted small" style="margin-top:10px">${r.points.length} 个拐点</div>
+        <div class="mono muted small" style="margin-top:10px">${r.points.length} ${esc(t('个拐点'))}</div>
         <div class="hr"></div>
-        <button class="btn danger small" data-del>删除</button>
+        <button class="btn danger small" data-del>${esc(t('删除'))}</button>
       `;
       dock.querySelector('[data-name]').onchange = (e) => {
         store.commit((w) => {
@@ -633,8 +753,8 @@ export function mount(root, ctx) {
       };
       dock.querySelector('[data-kind]').onchange = (e) => {
         store.commit((w) => {
-          const t = w.map.routes.find((x) => x.id === r.id);
-          if (t) t.kind = e.target.value;
+          const t2 = w.map.routes.find((x) => x.id === r.id);
+          if (t2) t2.subtype = e.target.value;
         });
         openDock();
       };

@@ -28,6 +28,27 @@ export const ROUTE_KINDS = {
   other: { label: '其他', color: '#8f8577' }
 };
 
+/** 面状要素的类型：区域 / 湖 / 海 —— 决定填充色与默认名 */
+export const REGION_KINDS = {
+  land: { label: '陆地', color: '#2f6b6b', fillOpacity: 0.22, name: '陆地' },
+  lake: { label: '湖', color: '#3f7fa6', fillOpacity: 0.3, name: '湖泊' },
+  sea: { label: '海', color: '#25506e', fillOpacity: 0.34, name: '海域' }
+};
+
+/** 线状要素的类型：河 / 公路 / 铁路 / 小径 / 航道 —— 只差颜色和线型 */
+export const PATH_KINDS = {
+  river: { label: '河流', color: '#4a90b8', width: 2.4, dash: '', name: '河流' },
+  road: { label: '公路', color: '#b59564', width: 2.4, dash: '', name: '公路' },
+  rail: { label: '铁路', color: '#8f8577', width: 2.2, dash: '9 4', name: '铁路' },
+  trail: { label: '小径', color: '#9c8f7a', width: 1.6, dash: '2 5', name: '小径' },
+  seaLane: { label: '航道', color: '#5f9bb5', width: 2.2, dash: '7 5', name: '航道' },
+  other: { label: '其他', color: '#8f8577', width: 2, dash: '5 4', name: '路径' }
+};
+
+/** 老数据的 kind 映射到新 subtype，保证旧世界打开后不会变样 */
+const LEGACY_ROUTE = { sea: 'seaLane', road: 'road', dive: 'trail', other: 'other' };
+
+
 const EMPTY_WORLD = {
   meta: { title: '未命名世界', genre: '', logline: '', worldStyle: '', tone: '' },
   entities: [],
@@ -94,7 +115,8 @@ export function normalize(raw) {
     regions: (Array.isArray(m.regions) ? m.regions : []).map((r) => ({
       id: r.id || uid('rg'),
       name: r.name || '区域',
-      color: r.color || '#2f6b6b',
+      subtype: REGION_KINDS[r.subtype] ? r.subtype : 'land',
+      color: r.color || (REGION_KINDS[r.subtype] || REGION_KINDS.land).color,
       points: (r.points || []).map((p) => [Number(p[0]) || 0, Number(p[1]) || 0]),
       labelAt: Array.isArray(r.labelAt) && r.labelAt.length === 2 ? [Number(r.labelAt[0]) || 0, Number(r.labelAt[1]) || 0] : null
     })),
@@ -110,6 +132,7 @@ export function normalize(raw) {
       id: r.id || uid('rt'),
       label: r.label || '',
       kind: ROUTE_KINDS[r.kind] ? r.kind : 'sea',
+      subtype: PATH_KINDS[r.subtype] ? r.subtype : LEGACY_ROUTE[r.kind] || 'road',
       points: (r.points || []).map((p) => [Number(p[0]) || 0, Number(p[1]) || 0])
     }))
   };
