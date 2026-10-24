@@ -1,0 +1,23 @@
+{
+  "name": "worldforge",
+  "version": "0.4.0",
+  "type": "module",
+  "description": "Local-first worldbuilding workbench: entity cards, relationship graph, timeline, programmatic maps, image generation",
+  "keywords": [
+    "worldbuilding",
+    "writing",
+    "comfyui",
+    "local-first",
+    "no-dependencies"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs"
+  }
+}
+
+

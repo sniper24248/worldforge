@@ -1,0 +1,19 @@
+node_modules/
+
+# 自己的世界不进仓库，只留示例
+data/worlds/*
+!data/worlds/w-demo.json
+data/images/*
+!data/images/demo-*.png
+
+# 本机配置与备份
+data/state.json
+data/config.json
+data/*.migrated
+data/import-*.json
+data/demo-*.json
+
+# 系统垃圾
+*.log
+.DS_Store
+Thumbs.db
