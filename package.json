@@ -1,6 +1,6 @@
 {
   "name": "worldforge",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "type": "module",
   "description": "Local-first worldbuilding workbench: entity cards, relationship graph, timeline, programmatic maps, image generation",
   "keywords": [
@@ -19,5 +19,3 @@
     "dev": "node server.mjs"
   }
 }
-
-

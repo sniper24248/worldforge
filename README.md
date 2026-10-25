@@ -62,7 +62,7 @@ node server.mjs
 
 首次启动自带一个示例世界「灰潮纪元」（10 张卡、一张地图、3 张 AI 配图），看完随手删掉就行。
 
-**不想装 Node？** 下载 Release 里的 `WorldForge-0.4.0-portable.zip`（约 40 MB，仅 Windows x64），里面已经带了一份 `node.exe` —— 解压后双击 `start.bat` 就能跑，会自动挑一个空闲端口并打开浏览器。代价是体积大，适合发给完全不想折腾环境的朋友。
+**不想装 Node？** 下载 Release 里的 `WorldForge-0.4.1-portable.zip`（约 40 MB，仅 Windows x64），里面已经带了一份 `node.exe` —— 解压后双击 `start.bat` 就能跑，会自动挑一个空闲端口并打开浏览器。代价是体积大，适合发给完全不想折腾环境的朋友。
 
 桌面上有个快捷方式叫**「创世之书」**，指向 `start.bat`，图标是自绘的 `assets/worldforge.ico`。
 
